@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebGIS - TN pop Den Layer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+        .legend {
+            background: white;
+            padding: 10px;
+            line-height: 18px;
+            color: #555;
+            font-size: 14px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+            border-radius: 5px;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+var map = L.map('map').setView([22.822155235015448, 105.94048473627146], 12);
+
+// Add OpenStreetMap tile layer
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+// Load GeoJSON data
+fetch('communes.geojson') // <-- đổi tên file GeoJSON nếu cần
+    .then(response => response.json())
+    .then(data => {
+
+        // Function to style features based on "TN pop Den"
+        function style(feature) {
+            return {
+                fillColor: getColor(feature.properties["TN pop Den"]),
+                weight: 1,
+                opacity: 1,
+                color: 'white',
+                fillOpacity: 0.7
+            };
+        }
+
+        // Function to assign color based on "TN pop Den" value
+        function getColor(d) {
+            return d > 156 ? '#800026' :
+                   d > 82  ? '#BD0026' :
+                   d > 64  ? '#E31A1C' :
+                   d > 58  ? '#FD8D3C' :
+                   d > 51  ? '#FEB24C' :
+                             '#FFEDA0';
+        }
+
+        // Add GeoJSON layer to the map
+        L.geoJSON(data, {
+            style: style,
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties["TN pop Den"]) {
+                    layer.bindPopup("TN pop Den: " + feature.properties["TN pop Den"]);
+                }
+            }
+        }).addTo(map);
+
+        // Create a legend control
+        var legend = L.control({position: 'topright'});
+
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'info legend'),
+                grades = [51, 58, 64, 82, 156],
+                labels = [];
+
+            div.innerHTML += '<h4>TN pop Den</h4>';
+
+            for (var i = 0; i < grades.length; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + getColor(grades[i] + 0.1) + '"></i> ' +
+                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+            }
+
+            return div;
+        };
+
+        legend.addTo(map);
+
+    })
+    .catch(error => console.error('Error loading GeoJSON:', error));
+</script>
+
+</body>
+</html>
