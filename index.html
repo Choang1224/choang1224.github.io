@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -130,14 +131,11 @@ fetch('communes.geojson')
         legend.onAdd = function (map) {
             var div = L.DomUtil.create('div', 'info legend'),
                 grades = [51, 58, 64, 82, 156],
-                labels = [];
-
-            div.innerHTML += '<h4>TN pop Den</h4>';
-
-            for (var i = 0; i < grades.length; i++) {
-                div.innerHTML +=
-                    '<i style="background:' + getColor(grades[i] + 0.1) + '"></i> ' +
-                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
+            div.innerHTML += '<h4>Population density<br>(people per km<sup>2</sup>)</h4>';
+        for(var i=0;i<grades.length;i++){
+          div.innerHTML +=
+            '<i style="background:'+getColor(grades[i]+0.1)+'"></i> '+
+            grades[i]+(grades[i+1]?'&ndash;'+grades[i+1]+'<br>':'+');
             }
 
             return div;
