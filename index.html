@@ -1,65 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>WebGIS Q2 midterm2 of Nguyen Thu Chang - 2106080022</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-        #map {
-            height: calc(100% - 80px);
-            width: 100%;
-        }
-        header {
-            height: 80px;
-            text-align: center;
-            background-color: #4CAF50;
-            color: black;
-            font-size: 24px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .info.legend {
-            background: white;
-            padding: 6px 8px;
-            font: 14px Arial, sans-serif;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-            border-radius: 5px;
-        }
-        .label-text {
-            font-size: 12px;
-            font-weight: bold;
-            color: black;
-            text-shadow: 1px 1px 2px white;
-        }
-    </style>
-</head>
-<body>
-
-<header>
-    WebGIS Q2 midterm2 of Nguyen Thu Chang - 2106080022<br>Thông Nông, Cao Bằng
-</header>
-
-<div id="map"></div>
-
-<!-- Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
     // Initialize the map
-    var map = L.map('map').setView([22.8046, 105.6229], 12); // Center at Thông Nông
+    var map = L.map('map').setView([22.8046, 105.6229], 12); // Thông Nông, Cao Bằng
 
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -67,73 +8,21 @@
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Define color scale for population density
-    function getColor(d) {
-        return d > 500 ? '#800026' :
-               d > 300 ? '#BD0026' :
-               d > 200 ? '#E31A1C' :
-               d > 100 ? '#FC4E2A' :
-               d > 50  ? '#FD8D3C' :
-               d > 20  ? '#FEB24C' :
-               d > 0   ? '#FED976' :
-                         '#FFEDA0';
-    }
-
-    function style(feature) {
-        return {
-            fillColor: getColor(feature.properties.population_density),
-            weight: 1,
-            opacity: 1,
-            color: 'white',
-            fillOpacity: 0.7
-        };
-    }
-
-    // Commune Layer
-    var communeLayer = L.geoJSON(null, {
-        style: style,
-        onEachFeature: function (feature, layer) {
-            // Popup
-            layer.bindPopup('<strong>' + feature.properties.name + '</strong><br>Population Density: ' + feature.properties.population_density + ' people/km²');
-
-            // Label
-            var center = layer.getBounds().getCenter();
-            var label = L.marker(center, {
-                icon: L.divIcon({
-                    className: 'label-text',
-                    html: feature.properties.name,
-                    iconSize: [100, 20]
-                })
-            }).addTo(map);
-        }
-    }).addTo(map);
-
-    // Load GeoJSON
-    fetch('communes.geojson')
-        .then(response => response.json())
-        .then(data => {
-            communeLayer.addData(data);
-        });
-
-    // Add Legend
-    var legend = L.control({position: 'topright'});
-
-    legend.onAdd = function (map) {
-        var div = L.DomUtil.create('div', 'info legend'),
-            grades = [0, 20, 50, 100, 200, 300, 500],
-            labels = [];
-
-        // loop through density intervals and generate label with colored squares
-        for (var i = 0; i < grades.length; i++) {
-            div.innerHTML +=
-                '<i style="background:' + getColor(grades[i] + 1) + '; width:18px; height:18px; display:inline-block; margin-right:8px;"></i> ' +
-                grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
-        }
-        return div;
+    // GeoJSON data
+    var myGeoJSON = {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": { "name": "Khu vực A" },
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[105.62,22.80], [105.63,22.80], [105.63,22.81], [105.62,22.81], [105.62,22.80]]]
+                }
+            }
+        ]
     };
 
-    legend.addTo(map);
+    // Add GeoJSON layer
+    L.geoJSON(myGeoJSON).addTo(map);
 </script>
-
-</body>
-</html>
